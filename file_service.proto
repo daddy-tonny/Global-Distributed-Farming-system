@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package fileservice;
+
+service FileService {
+  rpc UploadFile(stream FileUploadRequest) returns (FileUploadResponse);
+  rpc DownloadFile(FileDownloadRequest) returns (stream FileDownloadResponse);
+  rpc ListFiles(ListFilesRequest) returns (ListFilesResponse);
+  rpc ReplicateFile(ReplicateFileRequest) returns (ReplicateFileResponse);
+  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+  rpc GetFileInfo(FileInfoRequest) returns (FileInfoResponse);
+}
+
+message FileUploadRequest {
+  string file_id = 1;
+  string filename = 2;
+  bytes chunk_data = 3;
+  int32 chunk_number = 4;
+  int32 total_chunks = 5;
+  string checksum = 6;
+  int64 file_size = 7;
+  string uploader_node_id = 8;
+}
+
+message FileUploadResponse {
+  bool success = 1;
+  string message = 2;
+  string file_id = 3;
+  repeated string replica_nodes = 4;
+}
+
+message FileDownloadRequest {
+  string file_id = 1;
+  string filename = 2;
+  string requester_node_id = 3;
+}
+
+message FileDownloadResponse {
+  bytes chunk_data = 1;
+  int32 chunk_number = 2;
+  int32 total_chunks = 3;
+  bool success = 4;
+  string message = 5;
+}
+
+message ListFilesRequest {
+  string node_id = 1;
+}
+
+message ListFilesResponse {
+  repeated FileMetadata files = 1;
+}
+
+message FileMetadata {
+  string file_id = 1;
+  string filename = 2;
+  int64 file_size = 3;
+  string uploader_node_id = 4;
+  repeated string replica_nodes = 5;
+  string upload_timestamp = 6;
+  string checksum = 7;
+}
+
+message ReplicateFileRequest {
+  string file_id = 1;
+  string filename = 2;
+  bytes file_data = 3;
+  string checksum = 4;
+  string source_node_id = 5;
+}
+
+message ReplicateFileResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteFileRequest {
+  string file_id = 1;
+  string requester_node_id = 2;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message FileInfoRequest {
+  string file_id = 1;
+}
+
+message FileInfoResponse {
+  FileMetadata metadata = 1;
+  bool exists = 2;
+}
